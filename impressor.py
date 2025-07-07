@@ -59,7 +59,6 @@ def print_custom_ast(node, prefix=""):
         print_custom_ast(node.right, child_prefixes[1].replace("├──", "│  ").replace("└──", "   ") + "└── ")        
     elif isinstance(node, IfStatement):
         print(f"{prefix}IfStatement")
-        # Lógica corrigida: 2 filhos (cond, true_body) ou 3 (se tiver false_body)
         num_children_to_print = 3 if node.false_body else 2
         child_prefixes = get_child_prefixes(num_children_to_print, prefix)
 

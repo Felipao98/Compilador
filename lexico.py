@@ -11,9 +11,7 @@ KEYWORDS = {
 }
 
 def lexical_analyzer(code):
-    """
-    Realiza a análise léxica do código C e retorna uma lista de tokens.
-    """    
+    # Realiza a análise léxica do código C e retorna uma lista de tokens.
     token_specification = [
         ('COMMENT',      r'//.*|/\*[\s\S]*?\*/'),
         ('STRING',       r'"([^"\\]|\\.)*"'),

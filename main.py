@@ -38,59 +38,46 @@ def fase_geracao_codigo(ast):
 
 def analisar_codigo_c(caminho_arquivo, gerar_arquivo=True, imprimir_arvore=True):
     print(f"\n--- Analisando o arquivo '{caminho_arquivo}' ---")
-    try:    
+    ast = None
+    assembly_code = None
+    
+    try:
         with open(caminho_arquivo, 'r', encoding='utf-8') as f:
             codigo = f.read()
 
         # Fases do compilador
         tokens = fase_lexica(codigo)
         ast = fase_sintatica(tokens)
-        ast = fase_semantica(ast)
-        assembly_code = fase_geracao_codigo(ast)
-
-        # print("\n--- FASE 4: Geração de Código Assembly ---")
-        print("Código Assembly gerado:")
-        print("="*40)
-        print(assembly_code)
-        print("="*40)
-
-        # Salvando o código assembly
-        if gerar_arquivo:
-            output_filename = os.path.splitext(caminho_arquivo)[0] + ".asm"
-            with open(output_filename, "w") as f:
-                f.write(assembly_code)
-            print(f"Código Assembly salvo em: '{output_filename}'")
-
-            if platform.system() == "Linux":
-                print("\nPara compilar e executar (em Linux):")
-                print(f"  nasm -f elf32 {output_filename}")
-                print(f"  ld -m elf_i386 -s -o {os.path.splitext(output_filename)[0]} {os.path.splitext(output_filename)[0]}.o")
-                print(f"  ./{os.path.splitext(output_filename)[0]}; echo $?")
-            else:
-                print("\n[INFO] Para compilar no Windows:")
-                print(f"  nasm -f win32 {output_filename}")
-                # print("  (ou configure o uso de MinGW ou VS linker)")
-
-        # Impressão da árvore
-        # if imprimir_arvore:
-        #     print("\n--- FASE 5: Impressão da Árvore Sintática ---\n")
-        #     print_custom_ast(ast)
-
-        return {
-            "tokens": tokens,
-            "ast": ast,
-            "assembly": assembly_code
-        }
+        ast = fase_semantica(ast) 
 
     except FileNotFoundError:
         print(f"ERRO: Arquivo '{caminho_arquivo}' não encontrado.")
     except SyntaxError as e:
         print(f"\nERRO DE SINTAXE: {e}")
     except SemanticError as e:
-        print(f"\nERRO SEMÂNTICO: {e}")
-    except Exception as e:
+        print(f"\nERRO SEMÂNTICO: {e}") 
         traceback.print_exc()
         print(f"\nERRO inesperado durante a análise: {e}")
+    
+    finally:
+        if ast:
+            print("\n--- FASE 4: Geração de Código Assembly ---")
+            
+            try:
+                assembly_code = fase_geracao_codigo(ast)
+                print("Código Assembly gerado:")
+                print("="*40)
+                print(assembly_code)
+                print("="*40)
+
+                if gerar_arquivo:
+                    output_filename = os.path.splitext(caminho_arquivo)[0] + ".asm"
+                    with open(output_filename, "w") as f:
+                        f.write(assembly_code)
+                    print(f"Código Assembly salvo em: '{output_filename}'")
+
+            except Exception as gen_error:
+                print(f"ERRO DURANTE A GERAÇÃO DE CÓDIGO: {gen_error}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compilador Simples para C subset")
@@ -100,7 +87,6 @@ if __name__ == "__main__":
     if args.arquivo:
         analisar_codigo_c(args.arquivo)
     else:
-        # Execução de exemplo: válido e inválido
         exemplo_valido = "exemplo_valido.c"
         exemplo_invalido = "exemplo_invalido.c"
 

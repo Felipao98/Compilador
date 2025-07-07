@@ -24,10 +24,8 @@ class SymbolTable:
         self.scopes.append({})
 
     def pop_scope(self):
-        """Remove o escopo atual e verifica por variáveis não utilizadas."""
         last_scope = self.scopes.pop()
         for name, symbol in last_scope.items():
-            # Desconsideramos funções por enquanto, focando em variáveis
             if not symbol.is_used:
                 print(f"[AVISO SEMÂNTICO] Variável '{name}' foi declarada mas nunca utilizada.")
 
@@ -51,15 +49,14 @@ class SemanticAnalyzer:
     def __init__(self):
         self.symbol_table = SymbolTable()
         self.current_function = None
-        self._preload_symbols() # <-- ADICIONE ESTA LINHA
+        self._preload_symbols() 
 
     def _preload_symbols(self):
-        # Pré-carrega funções padrão da biblioteca C
         printf_symbol = Symbol(
             name='printf',
-            symbol_type='int', # printf retorna um int (número de caracteres impressos)
+            symbol_type='int', 
             category='function',
-            params=[] # Simplificação: não vamos checar os parâmetros por enquanto
+            params=[] 
         )
         self.symbol_table.add_symbol(printf_symbol)
 
@@ -71,15 +68,12 @@ class SemanticAnalyzer:
 
     def generic_visit(self, node):
         """Visita os filhos de um nó genérico."""
-        # Esta implementação genérica pode não ser necessária se todos os nós forem tratados.
         raise SemanticError(f"Nó não esperado na análise semântica: {type(node).__name__}")
 
     def analyze(self, ast_root):
         """Ponto de entrada para iniciar a análise."""
         print("\n--- Iniciando Análise Semântica ---")
         self.visit(ast_root)
-        # for node in ast_root:
-        #     self.visit(node)
         print("--- Análise Semântica Concluída com Sucesso ---")
         return ast_root 
     
@@ -93,25 +87,6 @@ class SemanticAnalyzer:
         self.current_function = func_symbol
         self.visit(node.body)
         self.current_function = None
-        # func_name = node.name
-        # return_type = node.return_type
-        # param_types = [] 
-
-        # func_symbol = Symbol(func_name, return_type, 'function', params=param_types)
-        
-        # # A chamada agora está correta.
-        # self.symbol_table.add_symbol(func_symbol)
-        
-        # self.current_function = func_symbol
-        
-        # self.visit(node.body)
-        
-        # self.current_function = None
-
-        # self.visit(node.body)
-        
-        # self.symbol_table.pop_scope()
-        # self.current_function = None
 
     def visit_CompoundStatement(self, node):
         self.symbol_table.push_scope()
@@ -125,7 +100,7 @@ class SemanticAnalyzer:
         if node.initial_value:
             rhs_type = self.visit(node.initial_value)
             # lhs_type = node.var_type
-            if rhs_type != node.var_type: # and rhs_type != lhs_type:
+            if rhs_type != node.var_type: 
                 raise SemanticError(f"Erro: Tipo incompatível na declaração. Não se pode atribuir '{rhs_type}' à variável '{node.name}'.") # do tipo '{lhs_type}'
     
     def visit_Assignment(self, node):
@@ -134,19 +109,11 @@ class SemanticAnalyzer:
         if not symbol:
             raise SemanticError(f"Erro: Variável '{node.lhs.name}' não foi declarada.")
         
-        # Se não marcarmos aqui, uma variável que só recebe valores mas nunca é lida
-        # seria incorretamente marcada como "não utilizada".
         symbol.is_used = True
 
-        # Obtém o tipo do lado direito da atribuição.
         rhs_type = self.visit(node.rhs)
-        # lhs_type = symbol.type
         if symbol.type != rhs_type:
             raise SemanticError(f"Atribuição de tipo incompatível para '{symbol.name}'.")
-
-        # Verifica se os tipos são compatíveis.
-        # if lhs_type != rhs_type:
-        #     raise SemanticError(f"Erro: Atribuição de tipo incompatível. Não se pode atribuir '{rhs_type}' à variável '{symbol.name}' do tipo '{lhs_type}'.")
 
     def visit_BinaryOperation(self, node):
         left_type = self.visit(node.left)
@@ -162,7 +129,6 @@ class SemanticAnalyzer:
                 raise SemanticError(f"Erro: Operação de comparação '{node.op}' requer operandos do mesmo tipo.")
             return 'bool'
             
-        # Verificação para operadores lógicos
         elif node.op in ['&&', '||']:
             if not (left_type == 'bool' and right_type == 'bool'):
                  raise SemanticError(f"Erro: Operação lógica '{node.op}' requer operandos do tipo 'bool'.")
@@ -183,11 +149,6 @@ class SemanticAnalyzer:
 
     def visit_Constant(self, node):
         return node.const_type
-        # Retorna o tipo da constante.
-        # if node.const_type == 'string':
-        #     return 'string'
-        # # Seu parser define 'int' para todos os números, o que é suficiente por agora.
-        # return 'int'
 
     def visit_IfStatement(self, node):
         if self.visit(node.condition) != 'bool':
@@ -195,12 +156,6 @@ class SemanticAnalyzer:
         self.visit(node.true_body)
         if node.false_body: 
             self.visit(node.false_body)
-        # condition_type = self.visit(node.condition)
-        # if condition_type != 'bool':
-        #     raise SemanticError(f"Erro: A condição de um 'if' deve ser do tipo 'bool', mas foi '{condition_type}'.")
-        # self.visit(node.true_body)
-        # if node.false_body:
-        #     self.visit(node.false_body)
             
     def visit_ForStatement(self, node):
         self.symbol_table.push_scope()
@@ -212,17 +167,6 @@ class SemanticAnalyzer:
             self.visit(node.incr)
         self.visit(node.body)
         self.symbol_table.pop_scope()
-        # self.symbol_table.push_scope()
-        # if node.init:
-        #     self.visit(node.init)
-        # if node.cond:
-        #     cond_type = self.visit(node.cond)
-        #     if cond_type != 'bool':
-        #         raise SemanticError(f"Erro: Condição do 'for' deve ser booleana, mas foi '{cond_type}'.")
-        # if node.incr:
-        #     self.visit(node.incr)
-        # self.visit(node.body)
-        # self.symbol_table.pop_scope()
 
     def visit_WhileStatement(self, node):
         condition_type = self.visit(node.condition)
@@ -239,31 +183,16 @@ class SemanticAnalyzer:
     def visit_FunctionCall(self, node):
         func_name = node.name.name
 
-        # Condição especial para funções built-in como printf
         if func_name == 'printf':
-            # Apenas visita os argumentos sem checar quantidade ou tipo
             for arg_node in node.args:
                 self.visit(arg_node)
-            return 'int' # Retorna o tipo de retorno de printf
+            return 'int'
 
         symbol = self.symbol_table.lookup_symbol(func_name)
 
         if not symbol or symbol.category != 'function':
             raise SemanticError(f"Erro: Função '{func_name}' não foi declarada.")
         
-        # Verificar tipo de cada argumento
-        # expected_params_count = len(symbol.param_types)
-        # actual_args_count = len(node.args)
-        # if expected_params_count != actual_args_count:
-        #     raise SemanticError(f"Erro: Função '{func_name}' espera {expected_params_count} argumentos, mas recebeu {actual_args_count}.")
-
-        # # Verificar tipo de cada argumento
-        # for i, arg_node in enumerate(node.args):
-        #     actual_type = self.visit(arg_node)
-        #     expected_type = symbol.param_types[i]
-        #     if actual_type != expected_type:
-        #         raise SemanticError(f"Erro: Argumento {i+1} da chamada da função '{func_name}' é do tipo incorreto. Esperado '{expected_type}', mas foi '{actual_type}'.")
-
         return symbol.type
     
     def visit_ReturnStatement(self, node):
@@ -275,15 +204,3 @@ class SemanticAnalyzer:
         actual = self.visit(node.value) if node.value else 'void'
         if actual != expected:
             raise SemanticError(f"Tipo de retorno incompatível em '{self.current_function.name}'.")
-
-        
-        # if node.value is None: # Caso: return;
-        #     if expected_type != 'void':
-        #         raise SemanticError(f"Erro: A função '{self.current_function.name}' deve retornar um valor do tipo '{expected_type}', mas retornou vazio.")
-        # else: # Caso: return <expressao>;
-        #     if expected_type == 'void':
-        #         raise SemanticError(f"Erro: Uma função 'void' ('{self.current_function.name}') não pode retornar um valor.")
-            
-        #     actual_type = self.visit(node.value)
-        #     if actual_type != expected_type:
-        #         raise SemanticError(f"Erro: Tipo de retorno incompatível na função '{self.current_function.name}'. Esperado '{expected_type}', mas encontrado '{actual_type}'.")

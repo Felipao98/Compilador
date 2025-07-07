@@ -1,6 +1,3 @@
-# FASE 1: DEFINIÇÃO DAS CLASSES DA ARVOREAST 
-# Estas classes representam os nós da árvore.
-
 # nó generico, garante as subclasses sejam tratadas
 class Node:
     pass
