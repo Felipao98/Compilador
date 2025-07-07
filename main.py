@@ -15,7 +15,7 @@ def fase_lexica(codigo):
     print("\n--- FASE 1: Análise Léxica ---")
     tokens = lexico.lexical_analyzer(codigo)
     print("Tokens encontrados:")
-    print(tabulate(tokens, headers=["Tipo", "Valor"])) # <-- ADICIONE ESTAS LINHAS
+    print(tabulate(tokens, headers=["Tipo", "Valor"])) 
     return tokens
 
 def fase_sintatica(tokens):
@@ -23,13 +23,13 @@ def fase_sintatica(tokens):
     parser = Parser(tokens)
     ast = parser.parse_program()
     print("Árvore Sintática Abstrata (AST) gerada:")
-    print_custom_ast(ast) # <-- ADICIONE ESTAS LINHAS
+    print_custom_ast(ast) 
     return ast
 
 def fase_semantica(ast):
     print("\n--- FASE 3: Análise Semântica ---")
     analyzer = SemanticAnalyzer()
-    return analyzer.analyze(ast) # <-- ADICIONE "return" AQUI
+    return analyzer.analyze(ast) 
 
 def fase_geracao_codigo(ast):
     print("\n--- FASE 4: Geração de Código Assembly ---")
@@ -38,15 +38,21 @@ def fase_geracao_codigo(ast):
 
 def analisar_codigo_c(caminho_arquivo, gerar_arquivo=True, imprimir_arvore=True):
     print(f"\n--- Analisando o arquivo '{caminho_arquivo}' ---")
-    try:
+    try:    
         with open(caminho_arquivo, 'r', encoding='utf-8') as f:
             codigo = f.read()
 
         # Fases do compilador
         tokens = fase_lexica(codigo)
         ast = fase_sintatica(tokens)
-        fase_semantica(ast)
+        ast = fase_semantica(ast)
         assembly_code = fase_geracao_codigo(ast)
+
+        # print("\n--- FASE 4: Geração de Código Assembly ---")
+        print("Código Assembly gerado:")
+        print("="*40)
+        print(assembly_code)
+        print("="*40)
 
         # Salvando o código assembly
         if gerar_arquivo:
@@ -61,13 +67,13 @@ def analisar_codigo_c(caminho_arquivo, gerar_arquivo=True, imprimir_arvore=True)
                 print(f"  ld -m elf_i386 -s -o {os.path.splitext(output_filename)[0]} {os.path.splitext(output_filename)[0]}.o")
                 print(f"  ./{os.path.splitext(output_filename)[0]}; echo $?")
             else:
-                print("\n[INFO] Para compilar no Windows, use:")
+                print("\n[INFO] Para compilar no Windows:")
                 print(f"  nasm -f win32 {output_filename}")
-                print("  (ou configure o uso de MinGW ou VS linker)")
+                # print("  (ou configure o uso de MinGW ou VS linker)")
 
         # Impressão da árvore
         if imprimir_arvore:
-            print("\n--- FASE 5: Impressão da Árvore Sintática Abstrata ---\n")
+            print("\n--- FASE 5: Impressão da Árvore Sintática ---\n")
             print_custom_ast(ast)
 
         return {
