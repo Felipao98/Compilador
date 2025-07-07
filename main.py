@@ -72,9 +72,9 @@ def analisar_codigo_c(caminho_arquivo, gerar_arquivo=True, imprimir_arvore=True)
                 # print("  (ou configure o uso de MinGW ou VS linker)")
 
         # Impressão da árvore
-        if imprimir_arvore:
-            print("\n--- FASE 5: Impressão da Árvore Sintática ---\n")
-            print_custom_ast(ast)
+        # if imprimir_arvore:
+        #     print("\n--- FASE 5: Impressão da Árvore Sintática ---\n")
+        #     print_custom_ast(ast)
 
         return {
             "tokens": tokens,
