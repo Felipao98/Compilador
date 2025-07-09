@@ -1,7 +1,6 @@
 import os
 import traceback
 import argparse
-import platform
 
 import lexico
 from tabulate import tabulate
@@ -36,7 +35,7 @@ def fase_geracao_codigo(ast):
     gerador = AssemblyGenerator()
     return gerador.generate(ast)
 
-def analisar_codigo_c(caminho_arquivo, gerar_arquivo=True, imprimir_arvore=True):
+def analisar_codigo_c(caminho_arquivo, gerar_arquivo=True):
     print(f"\n--- Analisando o arquivo '{caminho_arquivo}' ---")
     ast = None
     assembly_code = None
@@ -56,8 +55,6 @@ def analisar_codigo_c(caminho_arquivo, gerar_arquivo=True, imprimir_arvore=True)
         print(f"\nERRO DE SINTAXE: {e}")
     except SemanticError as e:
         print(f"\nERRO SEMÂNTICO: {e}") 
-        traceback.print_exc()
-        print(f"\nERRO inesperado durante a análise: {e}")
     
     finally:
         if ast:
