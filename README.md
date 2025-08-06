@@ -109,3 +109,7 @@ gcc -m32 seu_codigo.o -o seu_programa
 -   [ ] Implementação de ponteiros e arrays.
 -   [ ] Otimizações simples no código Assembly gerado.
 -   [ ] Melhorar o tratamento de erros e mensagens.
+
+## Licença
+
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](./LICENSE) para detalhes.
